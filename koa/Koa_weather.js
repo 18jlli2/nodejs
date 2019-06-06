@@ -5,25 +5,28 @@ var app = new Koa();
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-router.get('/weather',async(ctx)=>{
-       var options={
-                    host:"apis.juhe.con",
-                    path:encodeURI("/simpleWeather/query?city="+ctx.body.city+"&key=2c49bdc27909a7cc98e0ba7e1dea9ce5"),
-                    method:'get'
-};
-var sendmsg='';
-var request=http.request(options,function(res1){
-response.on("data",function(chunk){
- sendmsg+=chunk;
-  console.log(sendmsg);
-});
-        res1.on("end",function(d){//¼àÌıendÊÂ¼ş£¬ÇëÇó½áÊøºóµ÷ÓÃ
-             list=JSON.parse(message);//¶Ô½ÓÊÕµ½µÄÊı¾İ½øĞĞ±àÂë
-            res.send(list);
-                 });//ÔÚ´°¿Ú´òÓ¡³öÊı¾İ
+router.get('/',async(ctx,next)=>{
+    return new Promise(function(resolve, reject) {
+        var options={
+            host:"apis.juhe.cn",
+            path:encodeURI("/simpleWeather/query?city="+ctx.query.city+"&key=2c49bdc27909a7cc98e0ba7e1dea9ce5"),
+            method:'get'
+        };
+        var sendmsg='';
+        var request=http.request(options,function(res1){
+            res1.on("data",function(chunk){
+                sendmsg+=chunk;
+                console.log(sendmsg);
+            });
 
-});
+            res1.on("end",function(){//ç›‘å¬endäº‹ä»¶ï¼Œè¯·æ±‚ç»“æŸåè°ƒç”¨
+                list=JSON.parse(sendmsg);//å¯¹æ¥æ”¶åˆ°çš„æ•°æ®è¿›è¡Œç¼–ç 
+                resolve(next());
+                ctx.body=list;});//åœ¨çª—å£æ‰“å°å‡ºæ•°æ®
+        });
 
-request.end();
+        request.end();
+
+    });
 });
 app.listen(3000,function(){console.log("connect right")});
