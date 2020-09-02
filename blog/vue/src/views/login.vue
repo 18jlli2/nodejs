@@ -1,12 +1,6 @@
 <template>
     <div  class='mainbox' :style="bg">
-		
         <h2>登陆</h2>
-		
-        <!-- <el-input class="elinput" placeholder="请输入用户名" v-model="ruleForm.user" ></el-input>
-        <el-input class="elinput" placeholder="请输入密码" v-model="ruleForm.password" show-password></el-input>
-        <router-link to='/registry' style="margin-bottom:0.5%;">无账号? 注册!</router-link>
-        <el-button class="login_button" @click="login()" size='medium' round>登录</el-button> -->
         <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px">
             <el-form-item label="" prop="username">
                 <el-input v-model="ruleForm.username" placeholder="输入账号"></el-input>
@@ -24,33 +18,16 @@
 </template>
 
 <script>
-import axios from 'axios'
 import {setCookie,getCookie} from '@/assets/js/cookie.js'
 export default {
-	name: 'productdetailspage',
     data(){
         return{
-			bg:{
-				backgroundImage: "url(" + require("@/assets/bgpit.jpg") + ")",
-				backgroundRepeat: "no -repeat" ,
-				backgroundSize:"100% 100%",
-                marginTop:"5px",
-			},
             ruleForm:{
                 username:'',
                 password:''
             },
-            rules: {
-            username: [
-                { required: true, message: '请输入账号', trigger: 'blur' },
-            ],
-            password:[
-                {required: true, message: '请输入密码', trigger: 'blur'},
-            ],
-        }
         }
     },
-
     mounted(){
         /*页面挂载获取cookie，如果存在username的cookie，则跳转到主页，不需登录*/
         if(getCookie('username')){
@@ -59,12 +36,12 @@ export default {
     },
     methods:{
         login(formName){
-            console.log(this.ruleForm)
+            
             this.$refs[formName].validate((valid) => {
             if (valid) {
-                axios({
+                this.$axios({
                     method:'post',
-                    url:'http://127.0.0.1:7001/login',
+                    url:'/api/login',
                     data:{
                         username:this.ruleForm.username,
                         password:this.ruleForm.password
@@ -85,7 +62,12 @@ export default {
                     {
                         //登陆失败
                         this.ruleForm.password = '';
-                        alert(res.data.message);
+                        this.$message({
+                            message:res.data.message,
+                            type:'error',
+                            showClose:true,
+                        })
+                        // alert(res.data.message);
                     }
                 })
             }else {
@@ -106,8 +88,6 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-	background:url('~@/../src/assets/bgpit.jpg') center center no-repeat;
-	backgroundsize:contain;
 }
 .el-form-item{
   text-align: center;

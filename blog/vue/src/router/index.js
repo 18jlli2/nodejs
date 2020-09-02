@@ -1,14 +1,20 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import { getCookie } from '@/assets/js/cookie.js'
 const Login = () =>
     import ("@/views/login")
-const register = () =>
-    import ("@/views/register")
+const Registry = () =>
+    import ("@/views/registry")
 const Home = () =>
     import ("@/views/Home")
+const Write = () =>
+    import ("@/views/write")
+const Article = () =>
+    import ("@/views/article")
 
-/*路由*/
+
 Vue.use(VueRouter)
+
   const routes = [
   {
     path: '/',
@@ -20,22 +26,50 @@ Vue.use(VueRouter)
     component:Login
   },
   {
-    path:'/register',
-    name:'register',
-    component:register
+    path:'/registry',
+    name:'registry',
+    component:Registry
   },
   {
     path:'/home',
     name:'home',
     component:Home,
-
-  }
+    
+  },
+  {
+    path:'/write',
+    name:'write',
+    component:Write,
+  },
+  {
+    path:'/post/:title',
+    name:'article',
+    component:Article,
+  },
 ]
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to,from,next)=>{
+  let username = getCookie('username');
+  if(to.matched.some(res=>res.meta.isLogin)){//判断是否需要登录
+    if(username){
+      next();
+    }else{
+      next({
+        path:"/login",
+        query:{
+          redirect:to.fullPath
+        }
+      })
+    }
+  }else{
+    next()
+  }
 })
 
 export default router
